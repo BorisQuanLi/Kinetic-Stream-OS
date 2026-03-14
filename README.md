@@ -1,18 +1,30 @@
-Kinetic-Stream-OS
+# Kinetic-Stream-OS
 
 High-Velocity Telemetry Orchestration for Distributed Edge Environments
 
-**Kinetic-Stream-OS** is a reference architecture for managing high-throughput (250+ events/sec) relational data across geographically dispersed industrial sites. Developed to simulate the data gravity and integrity challenges of a 30-site warehouse robotics fleet, it leverages a Python-to-MSSQL pipeline orchestrated via containerized Jenkins on a Linux (Ubuntu 24.04/WSL2) stack.
+**Kinetic-Stream-OS** is a reference architecture for managing high-throughput (250+ events/sec) relational data across geographically dispersed industrial sites. Developed to simulate the data gravity and integrity challenges of a 30-site warehouse robotics fleet, it leverages a Python-to-MSSQL pipeline orchestrated via containerized Jenkins on a Linux (Ubuntu 24.04/WSL2) stack.
 
 ---
 
 🏗️ Architectural Philosophy
 
-In a distributed robotics environment, data is heavy and latency is expensive. This project rejects "Cloud-Only" assumptions in favor of a **Cellular Edge Architecture**:
+In a distributed robotics environment, data is heavy and latency is expensive. This project rejects "Cloud-Only" assumptions in favor of a **Cellular Edge Architecture**:
 
 - **Data Integrity at Scale**: Validates relational parity at a 250,000-row grain to prevent "row explosion" or data loss during complex 40-50 column joins.
 - **Hybrid CI/CD**: Utilizes an on-premises Jenkins-in-Docker model to simulate deployment to secure, private warehouse networks.
 - **Idempotent Ingestion**: Employs Python-based bulk loading (`fast_executemany`) to handle 12 TB/site/day ingestion volumes without locking the transactional engine.
+
+---
+
+🚀 Quick Start
+
+Provision the localized edge-site simulation environment (Ubuntu 24.04/WSL2). The bootstrap is engineered for **State Isolation**, capturing and restoring your shell options to prevent environment pollution while automating MSSQL ODBC 18 drivers and Python `venv` lifecycle:
+
+```bash
+source ./scripts/setup_env.sh
+```
+
+---
 
 🚀 Technical Stack
 
