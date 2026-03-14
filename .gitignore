@@ -19,7 +19,6 @@ build/
 
 # Logs and Databases
 *.log
-*.sql
 
 # SQL/Data Artifacts
 *.csv

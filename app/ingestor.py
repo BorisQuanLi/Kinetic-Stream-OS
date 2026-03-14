@@ -41,14 +41,21 @@ def simulate_site_ingestion(rows=250000):
     print(f"✅ SUCCESS: Ingested {rows} rows in {duration:.2f} seconds.")
 
 if __name__ == "__main__":
-    # 1. Immediate Heartbeat
     print("🚀 [BOOT] Kinetic-Stream-OS Ingestor v1.0 starting...")
     
+    # Pre-flight: Test connection before generating data
     try:
-        # 2. Execution with timing
+        with engine.connect() as conn:
+            print("✔ Database Connection: Verified")
+    except Exception as e:
+        print(f"🚨 [FATAL] Database Authentication Failed: {e}")
+        exit(1)
+
+    try:
+        # Execution with timing
         start_wall_clock = time.time()
-        
-        # Here we call the function we defined earlier
+
+        # Proceed with ingestion
         simulate_site_ingestion(rows=250000)
         
         total_time = time.time() - start_wall_clock
