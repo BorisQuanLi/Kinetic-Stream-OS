@@ -1,0 +1,9 @@
+stage('Validate Site Data') {
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'mssql-creds', 
+                         usernameVariable: 'DB_USER', 
+                         passwordVariable: 'DB_PASS')]) {
+            sh "python3 app/validator.py"
+        }
+    }
+}
