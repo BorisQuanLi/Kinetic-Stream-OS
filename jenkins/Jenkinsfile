@@ -1,9 +1,42 @@
-stage('Validate Site Data') {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'mssql-creds', 
-                         usernameVariable: 'DB_USER', 
-                         passwordVariable: 'DB_PASS')]) {
-            sh "python3 app/validator.py"
+pipeline {
+    agent any
+
+    environment {
+        // Use the credential ID you set up in the Jenkins UI
+        DB_CREDS = credentials('mssql-creds')
+    }
+
+    stages {
+        stage('Initialize Database') {
+            steps {
+                echo '🧹 Clearing existing telemetry to ensure grain purity...'
+                // Using -C -No to trust self-signed certs in the simulation
+                sh "sqlcmd -S localhost -U ${DB_CREDS_USR} -P ${DB_CREDS_PSW} -C -No -Q 'TRUNCATE TABLE Site_Telemetry_Raw;'"
+            }
+        }
+
+        stage('High-Velocity Ingestion') {
+            steps {
+                echo '📡 Ingesting 250k-row telemetry grain...'
+                sh "python3 app/ingestor.py"
+            }
+        }
+
+        stage('Relational Parity Validation') {
+            steps {
+                echo '⚖️ Running Grain Check to mitigate Row Explosion...'
+                // We pipe the validation script into sqlcmd
+                sh "cat sql/validation.sql | sqlcmd -S localhost -U ${DB_CREDS_USR} -P ${DB_CREDS_PSW} -C -No"
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "🏁 Ingestion lifecycle complete."
+        }
+        failure {
+            echo "🚨 Build Failed: Row Explosion or Connection Failure detected. Check logs."
         }
     }
 }
