@@ -1,0 +1,52 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Jenkins build artifacts
+Jenkinsfile
+.jenkins/
+workspace/
+
+# Python - Exclude all local environment artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.env
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Distribution/Build
+dist/
+build/
+*.egg-info/
+
+# Docker - Exclude the tools used to build the environment
+.docker/
+docker-compose*.yml
+.dockerignore
+# If Dockerfile exists in a separate folder
+# Dockerfile
+
+# MSSQL & Databases
+# Avoid coping local database data volumes into the image
+mssql-data/
+*.sql
+*.sqlite3
+*.db
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Documentation & Misc
+docs/
+README.md
+LICENSE
