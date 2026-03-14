@@ -1,18 +1,60 @@
-import pandas as pd
-import numpy as np
+import os
+import time
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, event
 
-# 1. High-Performance Engine Configuration
-connection_url = "mssql+pyodbc://sa:YourPassword@localhost:1433/master?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=no"
-engine = create_engine(connection_url)
+load_dotenv()
 
-# 2. Critical for TB-scale: Enable Fast Execute Many
-@event.listens_for(engine, "before_cursor_execute")
-def receive_before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
-    if executemany:
-        cursor.fast_executemany = True
+# Use safe defaults for production stability
+user = os.getenv('DB_USER', 'sa')
+pw = os.getenv('DB_PASS')
+host = os.getenv('DB_HOST', 'localhost')
+db = os.getenv('DB_NAME', 'master')
+
+# 1. High-Performance Engine Configuration
+connection_url = f"mssql+pyodbc://{user}:{pw}@{host}:1433/{db}?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=no"
+engine = create_engine(connection_url, fast_executemany=True) # Newer SQLAlchemy supports this natively
+
+def simulate_site_ingestion(df, table_name='Site_Telemetry_Raw'):
+    rows = len(df)
+# ... [Your previous imports and engine setup] ...
 
 def simulate_site_ingestion(rows=250000):
-    # Logic for 50-column dataframe generation...
-    # (Use the NumPy logic we discussed)
-    df.to_sql('Site_Telemetry_Raw', engine, if_exists='append', index=False, chunksize=5000)
+    import pandas as pd
+    import numpy as np
+    
+    print(f"📊 Generating {rows} rows of 50-column telemetry...")
+    
+    # Fast NumPy generation for 50 columns
+    data = np.random.standard_normal((rows, 50))
+    cols = [f'sensor_{i:02d}' for i in range(50)]
+    df = pd.DataFrame(data, columns=cols)
+    
+    print(f"📡 [INGEST] Streaming to MSSQL...")
+    start_time = time.time()
+    
+    # CRITICAL: Ensure the engine actually connects
+    with engine.begin() as connection:
+        df.to_sql('Site_Telemetry_Raw', connection, if_exists='append', index=False, chunksize=5000)
+    
+    duration = time.time() - start_time
+    print(f"✅ SUCCESS: Ingested {rows} rows in {duration:.2f} seconds.")
+
+if __name__ == "__main__":
+    # 1. Immediate Heartbeat
+    print("🚀 [BOOT] Kinetic-Stream-OS Ingestor v1.0 starting...")
+    
+    try:
+        # 2. Execution with timing
+        start_wall_clock = time.time()
+        
+        # Here we call the function we defined earlier
+        simulate_site_ingestion(rows=250000)
+        
+        total_time = time.time() - start_wall_clock
+        print(f"🏁 [COMPLETE] System idle. Total wall time: {total_time:.2f}s")
+        
+    except Exception as e:
+        # 3. Defensive Error Handling
+        print(f"🚨 [FATAL] Ingestion pipeline collapsed: {e}")
+        exit(1) # Return non-zero for CI/CD / Jenkins pipelines
