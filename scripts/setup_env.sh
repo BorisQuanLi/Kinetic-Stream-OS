@@ -91,3 +91,8 @@ if [[ -n "${VIRTUAL_ENV:-}" ]]; then
 else
     echo "⚠️ Warning: Bootstrap finished but virtual environment is not active."
 fi
+
+echo ""
+echo "🐳 Next steps — start the stack and run the ingestor:"
+echo "   docker-compose up -d"
+echo "   python3 app/ingestor.py   # MSSQL healthcheck ensures readiness (~20s first boot)"

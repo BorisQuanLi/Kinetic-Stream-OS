@@ -39,5 +39,6 @@ __pycache__/
 .venv/
 venv/
 ENV/
-.env
+# .env is intentionally committed with demo credentials for out-of-the-box setup.
+# Do NOT use these credentials in any real deployment.
 

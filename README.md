@@ -16,12 +16,33 @@ In a distributed robotics environment, data is heavy and latency is expensive. T
 
 ---
 
+## Prerequisites
+
+- Docker & docker-compose
+- Ubuntu 24.04 / WSL2
+
+> Demo credentials are pre-configured in `.env` and `docker-compose.yml` — no manual setup required. See `.env.example` if deploying to a real environment.
+
+---
+
 🚀 Quick Start
 
-Provision the localized edge-site simulation environment (Ubuntu 24.04/WSL2). The bootstrap is engineered for **State Isolation**, capturing and restoring your shell options to prevent environment pollution while automating MSSQL ODBC 18 drivers and Python `venv` lifecycle:
+**Step 1** — Provision ODBC drivers and Python venv (Ubuntu 24.04/WSL2). The bootstrap captures and restores your shell options to prevent environment pollution:
 
 ```bash
 source ./scripts/setup_env.sh
+```
+
+**Step 2** — Start the MSSQL and Jenkins containers:
+
+```bash
+docker-compose up -d
+```
+
+**Step 3** — Run the ingestion pipeline (the MSSQL container has a built-in healthcheck; wait ~20s for first-time startup):
+
+```bash
+python3 app/ingestor.py
 ```
 
 ---
@@ -54,6 +75,8 @@ A Jenkins Pipeline (`Jenkinsfile`) manages the lifecycle:
 2. **Mock**: Execution against a localized 250k-row test-set in Docker.
 3. **Verify**: Automatic failure of the build if the "Row Delta" is non-zero.
 4. **Ship**: Packaging of the validated logic into a site-ready Docker image.
+
+> **Jenkins Setup**: The pipeline requires a credential named `mssql-creds` configured in Jenkins UI (`Manage Jenkins → Credentials`). Set the username to `sa` and the password to match your `.env` / `docker-compose.yml` SA password.
 
 ---
 
