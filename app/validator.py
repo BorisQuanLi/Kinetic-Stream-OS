@@ -1,5 +1,16 @@
-import pyodbc
+import os
 import sys
+import pyodbc
+from dotenv import load_dotenv
+load_dotenv()
+
+# Replace your hardcoded CONN_STR with this:
+USER = os.getenv('DB_USER', 'sa')
+PASS = os.getenv('DB_PASS')
+HOST = os.getenv('DB_HOST', 'localhost')
+DB = os.getenv('DB_NAME', 'master')
+
+CONN_STR = f"DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={HOST};DATABASE={DB};UID={USER};PWD={PASS};Encrypt=no"
 
 class KineticValidator:
     def __init__(self, connection_string):
@@ -39,9 +50,9 @@ class KineticValidator:
             return False
 
 if __name__ == "__main__":
-    # Simulate a Jenkins-style 'Pre-Flight' check
-    CONN_STR = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=localhost;DATABASE=master;UID=sa;PWD=YourStrongPassword123;Encrypt=no"
+    # Uses the environment-injected CONN_STR defined at the top of the module
     validator = KineticValidator(CONN_STR)
-    
+
     if not validator.check_row_parity(250000, "Site_Telemetry_Raw"):
-        sys.exit(1) # Jenkins sees this and stops the deployment
+        import sys
+        sys.exit(1) # Fail the Jenkins pipeline

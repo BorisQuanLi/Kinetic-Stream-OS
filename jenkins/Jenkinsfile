@@ -29,6 +29,12 @@ pipeline {
                 sh "cat sql/validation.sql | sqlcmd -S localhost -U ${DB_CREDS_USR} -P ${DB_CREDS_PSW} -C -No"
             }
         }
+
+        stage('Deep Validation') {
+            steps {
+                sh "python3 app/validator.py"
+            }
+        }
     }
 
     post {
