@@ -46,7 +46,13 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"🚨 [FATAL] Database Authentication Failed: {e}")
         exit(1)
+    # Database Context Warning
+    if db == 'master':
+        print("⚠️  [DEMO MODE] Ingesting into 'master' system database for zero-config startup.")
+    else:
+        print(f"✔ Target Database: {db}")
 
+    # Execute the ingestion engine to stream 250k rows into 'Site_Telemetry_Raw'
     try:
         # Execution with timing
         start_wall_clock = time.time()

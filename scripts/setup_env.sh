@@ -46,6 +46,7 @@ sudo ACCEPT_EULA=Y apt-get install -y \
     mssql-tools18 \
     unixodbc-dev \
     libsqlite3-dev
+export PATH="$PATH:/opt/mssql-tools18/bin"
 
 # 3. Virtual Environment Setup
 if [ ! -d ".venv" ]; then

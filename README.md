@@ -25,26 +25,35 @@ In a distributed robotics environment, data is heavy and latency is expensive. T
 
 ---
 
-🚀 Quick Start
+## 🚀 Quick Start
 
-**Step 1** — Provision ODBC drivers and Python venv (Ubuntu 24.04/WSL2). The bootstrap captures and restores your shell options to prevent environment pollution:
+**Step 1 — Environment Bootstrap**
+Install Microsoft ODBC 18 drivers and initialize the Python virtual environment (Ubuntu 24.04/WSL2):
 
 ```bash
 source ./scripts/setup_env.sh
 ```
 
-**Step 2** — Start the MSSQL and Jenkins containers:
+**Step 2** — Infrastructure Launch
+Start the MSSQL 2022 and Jenkins containers in detached mode:
 
 ```bash
 docker-compose up -d
 ```
 
-**Step 3** — Run the ingestion pipeline (the MSSQL container has a built-in healthcheck; wait ~20s for first-time startup):
+Note: If port 1433 is already in use on your host, the container may fail to start. You can modify the port mapping in docker-compose.yml if necessary.
+
+**Step 3** — High-Velocity Ingestion
+The database includes a healthcheck. Once the container is `healthy` (approx. 20s), run the ingestor to populate the `Site_Telemetry_Raw` table with 250,000 rows x 50 columns of data:
 
 ```bash
+# Automated wait for healthcheck
+docker heartbeat kinetic-db 2>/dev/null || \
+until [ "$(docker inspect -f {{.State.Health.Status}} kinetic-db)" = "healthy" ]; do sleep 2; done
+
+# Execute the ingestion engine to stream 250k rows into 'Site_Telemetry_Raw'
 python3 app/ingestor.py
 ```
-
 ---
 
 🚀 Technical Stack
