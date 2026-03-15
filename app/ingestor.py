@@ -15,10 +15,6 @@ db = os.getenv('DB_NAME', 'master')
 connection_url = f"mssql+pyodbc://{user}:{pw}@{host}:1433/{db}?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=no"
 engine = create_engine(connection_url, fast_executemany=True) # Newer SQLAlchemy supports this natively
 
-def simulate_site_ingestion(df, table_name='Site_Telemetry_Raw'):
-    rows = len(df)
-# ... [Your previous imports and engine setup] ...
-
 def simulate_site_ingestion(rows=250000):
     import pandas as pd
     import numpy as np
